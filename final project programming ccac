@@ -1,0 +1,134 @@
+import json
+import os
+
+FILE_NAME = "study_sessions.json"
+
+
+# ----------------------------
+# File Functions
+# ----------------------------
+def load_sessions():
+    """Load study sessions from file."""
+    if os.path.exists(FILE_NAME):
+        with open(FILE_NAME, "r") as file:
+            return json.load(file)
+    return []
+
+
+def save_sessions(sessions):
+    """Save study sessions to file."""
+    with open(FILE_NAME, "w") as file:
+        json.dump(sessions, file, indent=4)
+
+
+# ----------------------------
+# Program Functions
+# ----------------------------
+def add_session(sessions):
+    """Add a new study session."""
+    subject = input("Enter subject: ")
+    date = input("Enter date (MM/DD/YYYY): ")
+
+    try:
+        duration = float(input("Enter study duration in hours: "))
+        productivity = int(input("Rate productivity (1-10): "))
+    except ValueError:
+        print("Invalid input. Please enter numbers where needed.")
+        return
+
+    session = {
+        "subject": subject,
+        "date": date,
+        "duration": duration,
+        "productivity": productivity
+    }
+
+    sessions.append(session)
+    save_sessions(sessions)
+    print("Study session added successfully.\n")
+
+
+def view_sessions(sessions):
+    """Display all study sessions."""
+    if not sessions:
+        print("No study sessions found.\n")
+        return
+
+    print("\nStudy Sessions:")
+    for i, session in enumerate(sessions, start=1):
+        print(f"{i}. {session['subject']} | {session['date']} | "
+              f"{session['duration']} hrs | Productivity: {session['productivity']}")
+    print()
+
+
+def calculate_total_hours(sessions):
+    """Calculate total study hours."""
+    total = sum(session["duration"] for session in sessions)
+    print(f"Total study hours: {total}\n")
+
+
+def average_productivity(sessions):
+    """Calculate average productivity rating."""
+    if not sessions:
+        print("No sessions available.\n")
+        return
+
+    average = sum(session["productivity"] for session in sessions) / len(sessions)
+    print(f"Average productivity: {average:.2f}/10\n")
+
+
+def delete_session(sessions):
+    """Delete a study session."""
+    view_sessions(sessions)
+
+    if not sessions:
+        return
+
+    try:
+        choice = int(input("Enter session number to delete: "))
+        if 1 <= choice <= len(sessions):
+            removed = sessions.pop(choice - 1)
+            save_sessions(sessions)
+            print(f"Deleted {removed['subject']} session.\n")
+        else:
+            print("Invalid session number.\n")
+    except ValueError:
+        print("Please enter a valid number.\n")
+
+
+# ----------------------------
+# Main Menu
+# ----------------------------
+def main():
+    sessions = load_sessions()
+
+    while True:
+        print("=== Study Session Tracker ===")
+        print("1. Add Session")
+        print("2. View Sessions")
+        print("3. Calculate Total Hours")
+        print("4. Average Productivity")
+        print("5. Delete Session")
+        print("6. Exit")
+
+        choice = input("Choose an option: ")
+
+        if choice == "1":
+            add_session(sessions)
+        elif choice == "2":
+            view_sessions(sessions)
+        elif choice == "3":
+            calculate_total_hours(sessions)
+        elif choice == "4":
+            average_productivity(sessions)
+        elif choice == "5":
+            delete_session(sessions)
+        elif choice == "6":
+            print("Goodbye!")
+            break
+        else:
+            print("Invalid option. Try again.\n")
+
+
+if __name__ == "__main__":
+    main()
